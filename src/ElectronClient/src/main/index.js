@@ -7,6 +7,7 @@ import { app, BrowserWindow, Menu } from 'electron'
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
+require('electron-debug')({ showDevTools: true })
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
@@ -22,7 +23,7 @@ function createWindow() {
     useContentSize: true,
     width: 1000
   })
-
+  mainWindow.webContents.openDevTools()
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
