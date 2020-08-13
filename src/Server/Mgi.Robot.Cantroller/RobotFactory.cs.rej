@@ -1,0 +1,106 @@
+diff a/Engineer.Sp200.Bgi/Robot.Sp200.Bgi/RobotFactory.cs b/Engineer.Sp200.Bgi/Robot.Sp200.Bgi/RobotFactory.cs	(rejected hunks)
+@@ -1,4 +1,5 @@
+ ﻿using Common.Sp200.Bgi;
++using Common.Sp200.Bgi.Log;
+ using log4net;
+ using Robot.Sp200.Bgi.Axis;
+ using Robot.Sp200.Bgi.Can;
+@@ -19,41 +20,64 @@
+         /// </summary>
+         /// <param name="ioc"></param>
+         /// <returns></returns>
+-        public static IRobot BuildRobot(ILog logger)
++        /// <exception cref="RobotHandleException">如果读取参数错误</exception>
++        /// <exception cref="System.IO.IOException">如果参数文件不存在</exception>
++        public static IRobot BuildRobot()
+         {
+-            //var can = new DefaultCanController(logger);
+-
+-            //var xyzParameter = new ThreeAxisParameter()
+-            //{
+-            //    Name = "XYZ",
+-            //    DeviceType = 28,
+-            //    DeviceIndex = 0,
+-            //    CanIndex = 0,
+-            //    IOTimeout = TimeSpan.FromSeconds(3),
+-            //    FrameId = 0x01,
+-            //    WaitTimeoutms = TimeSpan.FromSeconds(60)
+-            //};
+-
+-            //var empParameter = new ThreeAxisParameter()
+-            //{
+-            //    Name = "XYZ",
+-            //    DeviceType = 28,
+-            //    DeviceIndex = 0,
+-            //    CanIndex = 0,
+-            //    IOTimeout = TimeSpan.FromSeconds(3),
+-            //    FrameId = 0x03,
+-            //    WaitTimeoutms = TimeSpan.FromSeconds(60)
+-            //};
+-
+-            //var xyzHandle = new XyzAxisHandle(xyzParameter, new DefaultCanController(logger), logger);
+-            //var epmHanlde = new EpmAxisHandle(empParameter, new DefaultCanController(logger), logger); 
+-
+-            //return new Sp200Robot(can, xyzHandle, epmHanlde, logger);
+-
+-
+-            List<RobotHandConfig> configs = new List<RobotHandConfig>();
+-           
+-            return null;
++            var logger = Spv2LoggerFactory.GetRobotLogger();
++            logger.Info("***Build robot instance begining...");
++
++            var config = JsonConfigReader.ReadConfigFromFile<List<RobotConfig>>(@"Config/robot.json");
++
++            var xyz = config.FirstOrDefault(f => f.HandleName.ToUpper().Equals(@"XYZ"));
++            var emp = config.FirstOrDefault(f => f.HandleName.ToUpper().Equals("EMP"));
++
++
++            if (xyz == null || emp == null)
++                throw new RobotHandleException("XYZ or EMP config not exist", new ArgumentException());
++            
++            //else
++            
++            var can = new DefaultCanController(logger);
++            var xyzParameter = new ThreeAxisParameter()
++            {
++                //Name = "XYZ",
++                Name = xyz.HandleName,            
++                //DeviceType = 28,
++                DeviceType = xyz.DeviceType,
++                //DeviceIndex = 0,
++                DeviceIndex = xyz.DeviceIndex,
++                //CanIndex = 0,
++                CanIndex = xyz.CanIndex,
++                //IOTimeout = TimeSpan.FromSeconds(3),
++                IOTimeout = xyz.CanTimeout,
++                //FrameId = 0x01,
++                FrameId = xyz.FrameId,
++                //WaitTimeoutms = TimeSpan.FromSeconds(60)
++                WaitTimeoutms = xyz.CanTimeout
++            };
++
++            var empParameter = new ThreeAxisParameter()
++            {
++                //Name = "XYZ",
++                Name = emp.HandleName,
++                //DeviceType = 28,
++                DeviceType = emp.DeviceType,
++                //DeviceIndex = 0,
++                DeviceIndex = emp.DeviceIndex,
++                //CanIndex = 0,
++                CanIndex = emp.CanIndex,
++                //IOTimeout = TimeSpan.FromSeconds(3),
++                IOTimeout = emp.CanTimeout,
++                //FrameId = 0x03,
++                FrameId = emp.FrameId
++                //WaitTimeoutms = TimeSpan.FromSeconds(60)
++            };
++
++            var xyzHandle = new XyzAxisHandle(xyzParameter, new DefaultCanController(logger), logger);
++            var epmHanlde = new EpmAxisHandle(empParameter, new DefaultCanController(logger), logger); 
++        
++            return new Sp200Robot(can, xyzHandle, epmHanlde, logger);
+         }
+     }
+ }

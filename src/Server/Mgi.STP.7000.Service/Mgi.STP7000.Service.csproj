@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Mgi.STP7000.Service</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\Mgi.STP7000.Service.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mgi.STP7000.Model\Mgi.STP7000.Model.csproj" />
+    <ProjectReference Include="..\Mgi.STP7000.Repository\Mgi.STP7000.Repository.csproj" />
+  </ItemGroup>
+
+</Project>
