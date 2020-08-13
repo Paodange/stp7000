@@ -46,7 +46,7 @@ service.interceptors.response.use(
         duration: 5 * 1000
       })
     } else {
-      return res.data
+      return Promise.resolve(res)
     }
   },
   error => {
